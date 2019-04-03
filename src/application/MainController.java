@@ -78,21 +78,26 @@ public class MainController {
 	private RadioButton allNeighbors;
 	
 	@FXML
+	private Slider sliderOpacityImage;
+
+	private int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+	
+	@FXML
 	public void grayScaleAverage() {
-		resultImage = ImageProcessing.grayScale(image1, Integer.parseInt(grayscaleRed.getText()), Integer.parseInt(grayscaleGreen.getText()), Integer.parseInt(grayscaleBlue.getText()));
-		updateImage3();
+		resultImage = ImageProcessing.grayScale(image1, Integer.parseInt(grayscaleRed.getText()), Integer.parseInt(grayscaleGreen.getText()), Integer.parseInt(grayscaleBlue.getText()), x1, y1, x2, y2);
+		updateResultImageView();
 	}
 	
 	@FXML
 	public void limiarizacao() {
 		resultImage = ImageProcessing.limiarizacao(image1, Integer.parseInt(grayscaleRed.getText()), Integer.parseInt(grayscaleGreen.getText()), Integer.parseInt(grayscaleBlue.getText()), sliderLimiarizacao.getValue());
-		updateImage3();
+		updateResultImageView();
 	}
 	
 	@FXML
 	public void negative() {
 		resultImage = ImageProcessing.negative(image1);
-		updateImage3();
+		updateResultImageView();
 	}
 	
 	@FXML
@@ -109,13 +114,13 @@ public class MainController {
 		
 		resultImage = ImageProcessing.noise(image1, neighborType);
 		
-		updateImage3();
+		updateResultImageView();
 	}
 	
 	@FXML
 	public void challenge01() {
 		resultImage = ImageProcessing.challenge01(image1);
-		updateImage3();
+		updateResultImageView();
 	}
 	
 	@FXML
@@ -125,6 +130,29 @@ public class MainController {
 		if (imageView.getImage() != null) {
 			checkColor(imageView.getImage(), (int) mouseEvent.getX(), (int) mouseEvent.getY());
 		}
+	}
+	
+	@FXML
+	public void pressImage(MouseEvent mouseEvent) {
+		ImageView imageView = (ImageView)mouseEvent.getTarget();
+
+		if (imageView.getImage() != null) {
+			this.x1 = (int) mouseEvent.getX();
+			this.y1 = (int) mouseEvent.getY();
+		}
+	}
+	
+	@FXML
+	public void releaseImage(MouseEvent mouseEvent) {
+		ImageView imageView = (ImageView)mouseEvent.getTarget();
+
+		if (imageView.getImage() != null) {
+			this.x2 = (int) mouseEvent.getX();
+			this.y2 = (int) mouseEvent.getY();
+		}
+		
+		image1 = ImageProcessing.markImage(image1, this.x1, this.y1, this.x2, this.y2);
+		updateImage1();
 	}
 	
 	@FXML
@@ -147,6 +175,18 @@ public class MainController {
 		} else {
 			showAlert("Salvar imagem", "Não é possível salvar a imagem.", "Não há nenhuma imagem modificada.", AlertType.ERROR);
 		}
+	}
+	
+	@FXML
+	public void subtract() {
+		resultImage = ImageProcessing.subtract(image1, image2);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void add() {
+		resultImage = ImageProcessing.add(image1, image2, sliderOpacityImage.getValue());
+		updateResultImageView();
 	}
 	
 	@FXML
@@ -173,10 +213,16 @@ public class MainController {
 		}
 	}
 	
-	private void updateImage3() {
+	private void updateResultImageView() {
 		resultImageView.setImage(resultImage);
 		resultImageView.setFitWidth(resultImage.getWidth());
 		resultImageView.setFitHeight(resultImage.getHeight());
+	}
+	
+	private void updateImage1() {
+		imageView1.setImage(image1);
+		imageView1.setFitWidth(image1.getWidth());
+		imageView1.setFitHeight(image1.getHeight());
 	}
 	
 	private void showAlert(String titulo, String cabecalho, String msg, AlertType tipo) {
