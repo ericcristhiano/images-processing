@@ -279,7 +279,7 @@
                         <Pane fx:id="colorPane" prefHeight="95.0" prefWidth="251.0" style="-fx-border-color: #a3a3a3;" />
                      </children>
                   </VBox>
-                  <Button mnemonicParsing="false" prefWidth="105.0" text="Histogram">
+                  <Button mnemonicParsing="false" onAction="#openHistogramModal" prefWidth="105.0" text="Histogram">
                      <HBox.margin>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </HBox.margin></Button>

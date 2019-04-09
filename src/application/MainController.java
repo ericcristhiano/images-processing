@@ -6,11 +6,17 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import core.CanalType;
 import core.ImageProcessing;
 import core.NeighborType;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
@@ -26,6 +32,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class MainController {
 	@FXML
@@ -37,6 +44,7 @@ public class MainController {
 	@FXML
 	private ImageView resultImageView;
 	
+	private Image originalImage;
 	private Image image1;
 	private Image image2;
 	private Image resultImage;
@@ -151,6 +159,7 @@ public class MainController {
 			this.y2 = (int) mouseEvent.getY();
 		}
 		
+		image1 = originalImage;
 		image1 = ImageProcessing.markImage(image1, this.x1, this.y1, this.x2, this.y2);
 		updateImage1();
 	}
@@ -195,6 +204,7 @@ public class MainController {
 		
 		if (file1 != null) {
 			image1 = new Image(file1.toURI().toString());
+			originalImage = new Image(file1.toURI().toString());
 			imageView1.setImage(image1);
 			imageView1.setFitWidth(image1.getWidth());
 			imageView1.setFitHeight(image1.getHeight());
@@ -210,6 +220,35 @@ public class MainController {
 			imageView2.setImage(image2);
 			imageView2.setFitWidth(image2.getWidth());
 			imageView2.setFitHeight(image2.getHeight());
+		}
+	}
+	
+	@FXML
+	public void openHistogramModal(ActionEvent actionEvent) {
+		try {
+			Stage stage = new Stage();
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("Histogram.fxml"));
+			Parent root = loader.load();
+			stage.setScene(new Scene(root));
+			stage.setTitle("Histogram");
+			stage.initOwner(((Node)actionEvent.getSource()).getScene().getWindow());
+			stage.show();
+			
+			HistogramController histogramController = (HistogramController)loader.getController();
+			
+			if (image1 != null) {
+				ImageProcessing.plotChart(image1, histogramController.chart1);
+			}
+			
+			if (image2 != null) {
+				ImageProcessing.plotChart(image2, histogramController.chart2);
+			}
+			
+			if (resultImage != null) {
+				ImageProcessing.plotChart(resultImage, histogramController.chart3);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

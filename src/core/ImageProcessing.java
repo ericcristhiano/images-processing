@@ -1,5 +1,8 @@
 package core;
 
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.Chart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
@@ -279,6 +282,59 @@ public class ImageProcessing {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static int[] calcHistogram(Image image, CanalType canal) {
+		int[] quantityTotal = new int[256];
+		
+		try {
+			int imageWidth = (int)image.getWidth();
+			int imageHeight = (int)image.getHeight();
+			
+			PixelReader pixelReader = image.getPixelReader();
+		
+			for (int x = 0; x < imageWidth; x++) {
+				for(int y = 0; y < imageHeight; y++) {
+					Color originalColor = pixelReader.getColor(x, y);
+					
+					switch (canal) {
+						case BLUE:
+							quantityTotal[(int) (originalColor.getBlue() * 255)]++;
+							break;
+						case RED:
+							quantityTotal[(int) (originalColor.getRed() * 255)]++;
+							break;
+						case GREEN:
+							quantityTotal[(int) (originalColor.getGreen() * 255)]++;						
+							break;
+						case UNIQUE:
+							quantityTotal[(int) (originalColor.getBlue() * 255)]++;
+							quantityTotal[(int) (originalColor.getRed() * 255)]++;
+							quantityTotal[(int) (originalColor.getGreen() * 255)]++;
+							break;
+					}
+				}
+			}
+
+			return quantityTotal;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void plotChart(Image image, BarChart<String, Number> chart) {
+		int [] histogram = calcHistogram(image, CanalType.UNIQUE);
+		XYChart.Series series = new XYChart.Series();
+		
+		System.out.println(histogram.length);
+		
+		for (int i = 0; i < histogram.length; i++) {
+			series.getData().add(new XYChart.Data(i+"", histogram[i]));
+		}
+
+		chart.getData().addAll(series);
 	}
 	
 	private static double calcAverage(double number1, int weight1, double number2, int weight2, double number3, int weight3) {
