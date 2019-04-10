@@ -328,8 +328,6 @@ public class ImageProcessing {
 		int [] histogram = calcHistogram(image, CanalType.UNIQUE);
 		XYChart.Series series = new XYChart.Series();
 		
-		System.out.println(histogram.length);
-		
 		for (int i = 0; i < histogram.length; i++) {
 			series.getData().add(new XYChart.Data(i+"", histogram[i]));
 		}
