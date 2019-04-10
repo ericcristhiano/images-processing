@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import core.CanalType;
 import core.ImageProcessing;
 import core.NeighborType;
 import javafx.embed.swing.SwingFXUtils;

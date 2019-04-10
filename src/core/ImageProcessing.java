@@ -1,7 +1,6 @@
 package core;
 
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.Chart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -323,9 +322,22 @@ public class ImageProcessing {
 		}
 	}
 	
+	public static int[] calcAccumulatedHistogram(int[] histogram) {
+		int[] accumulatedHistogram = new int[256];
+		int accumulated = 0;
+		
+		for (int i = 0; i < histogram.length; i++) {
+			accumulated += histogram[i];
+			accumulatedHistogram[i] = accumulated;
+		}
+		
+		return accumulatedHistogram;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void plotChart(Image image, BarChart<String, Number> chart) {
-		int [] histogram = calcHistogram(image, CanalType.UNIQUE);
+		int[] histogram = calcHistogram(image, CanalType.BLUE);	
+		
 		XYChart.Series series = new XYChart.Series();
 		
 		for (int i = 0; i < histogram.length; i++) {
