@@ -112,6 +112,14 @@ public class Pixel {
 		return new Color(colorsR[medianPosition], colorsG[medianPosition], colorsB[medianPosition], pixelReader.getColor(x, y).getOpacity());
 	}
 
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
 	private Pixel getTopNeighbor() {
 		if (!this.isTopBorder()) {
 			return new Pixel(x, y - 1, image);

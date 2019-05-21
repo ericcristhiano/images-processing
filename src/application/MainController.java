@@ -3,6 +3,7 @@ package application;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 
@@ -18,6 +19,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
@@ -86,12 +88,21 @@ public class MainController {
 	
 	@FXML
 	private Slider sliderOpacityImage;
+	
+	@FXML
+	private TextField simulation1Quantity;
+	
+	@FXML
+	private ColorPicker simulation1Color;
+	
+	@FXML
+	private TextField quantityColumns;
 
 	private int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 	
 	@FXML
 	public void grayScaleAverage() {
-		resultImage = ImageProcessing.grayScale(image1, Integer.parseInt(grayscaleRed.getText()), Integer.parseInt(grayscaleGreen.getText()), Integer.parseInt(grayscaleBlue.getText()), x1, y1, x2, y2);
+		resultImage = ImageProcessing.grayScale(originalImage, Integer.parseInt(grayscaleRed.getText()), Integer.parseInt(grayscaleGreen.getText()), Integer.parseInt(grayscaleBlue.getText()), x1, y1, x2, y2);
 		updateResultImageView();
 	}
 	
@@ -157,9 +168,15 @@ public class MainController {
 			this.x2 = (int) mouseEvent.getX();
 			this.y2 = (int) mouseEvent.getY();
 		}
-		
+
 		image1 = originalImage;
-		image1 = ImageProcessing.markImage(image1, this.x1, this.y1, this.x2, this.y2);
+		
+		int x1 = Math.min(this.x1, this.x2);
+		int x2 = Math.max(this.x1, this.x2);
+		int y1 = Math.min(this.y1, this.y2);
+		int y2 = Math.max(this.y1, this.y2);
+		
+		image1 = ImageProcessing.markImage(image1, x1, y1, x2, y2);
 		updateImage1();
 	}
 	
@@ -249,6 +266,108 @@ public class MainController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@FXML
+	public void equalizeHistogram() {
+		resultImage = ImageProcessing.equalizeHistogram(image1, false);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void equalizeHistogramWithColors() {
+		resultImage = ImageProcessing.equalizeHistogram(image1, true);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void simulation1() {
+		int quantity = Integer.parseInt(simulation1Quantity.getText());
+		resultImage = ImageProcessing.simulation1(originalImage, quantity, simulation1Color.getValue());
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void question2() {
+		resultImage = ImageProcessing.simulation2(originalImage);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void question3() {
+		HashSet<String> colors = ImageProcessing.simulation3(originalImage, x1, y1, x2, y2);
+		String colorsString = "";
+		
+		for (String color: colors) {
+			colorsString += color + "\n";
+		}
+		
+		showAlert("Cores encontradas", "Cores na seleção", colorsString, AlertType.INFORMATION);
+	}
+	
+	@FXML
+	public void increaseSize() {
+		resultImage = ImageProcessing.increase(originalImage);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void decreaseSize() {
+		resultImage = ImageProcessing.decrease(originalImage);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void rotate90Degrees() {
+		resultImage = ImageProcessing.rotate90Degrees(originalImage, x1, y1, x2, y2);
+		originalImage = resultImage;
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void evaluation1Question1() {
+		resultImage = ImageProcessing.evaluation1Question1(image1, Integer.parseInt(quantityColumns.getText()));
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void evaluation1Question2() {
+		resultImage = ImageProcessing.evaluation1Question2(image1, x1, y1, x2, y2);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void evaluation1Question3() {
+		boolean filledSquare = ImageProcessing.evaluation1Question3(image1);
+		
+		showAlert("Característica do quadrado", null, "O quadrado é " + (filledSquare ? "preenchido!" : "vazio!"), AlertType.INFORMATION);
+	}
+	
+	@FXML
+	public void segmentation() {
+		resultImage = ImageProcessing.segmentation(originalImage);
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void faceDetection() {
+		resultImage = ImageProcessing.faceDetection(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void dilation() {
+		resultImage = ImageProcessing.dilation(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void erosion() {
+		resultImage = ImageProcessing.erosion(originalImage, image1, image2);
+		
+		updateResultImageView();
 	}
 	
 	private void updateResultImageView() {
