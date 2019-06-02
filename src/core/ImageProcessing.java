@@ -7,6 +7,8 @@ import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
@@ -849,6 +851,184 @@ public class ImageProcessing {
 			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * erosonSize + 1, 2 * erosonSize + 1));
 			
 			Imgproc.erode(imageCv, destination, element);
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image canny(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+		
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+			
+			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
+			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY);
+			Imgproc.blur(destination, destination, new Size(3, 3));
+			
+			int threshold = 3;
+			int ratio = 50;
+			int kernelSize = 3;
+			Imgproc.Canny(destination, destination, 10, 100);
+//			Imgproc.Canny(destination, destination, threshold, threshold * ratio, kernelSize, false);
+			
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image sobel(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+		
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+			
+			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
+			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY);
+			Imgproc.blur(destination, destination, new Size(3, 3));
+			
+			Imgproc.Sobel(destination, destination, -2, 0, 2);
+			
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image laplace(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+		
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+			
+			Mat src = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+			
+			// Declare the variables we are going to use
+	        Mat src_gray = new Mat(), dst = new Mat();
+	        int kernel_size = 3;
+	        int scale = 1;
+	        int delta = 0;
+	        int ddepth = CvType.CV_16S;
+	        
+	        // Reduce noise by blurring with a Gaussian filter ( kernel size = 3 )
+	        Imgproc.GaussianBlur( src, src, new Size(3, 3), 0, 0, Core.BORDER_DEFAULT );
+	        // Convert the image to grayscale
+	        Imgproc.cvtColor( src, src_gray, Imgproc.COLOR_RGB2GRAY );
+	        Mat abs_dst = new Mat();
+	        Imgproc.Laplacian( src_gray, dst, ddepth, kernel_size, scale, delta, Core.BORDER_DEFAULT );
+	        // converting back to CV_8U
+	        Core.convertScaleAbs( dst, abs_dst );
+			
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", dst);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image test(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+		
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+			
+			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
+			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY); // grayscale
+			Imgproc.threshold(imageCv, destination, 0, 255, Imgproc.THRESH_OTSU); // threshold
+			
+			
+//			Imgproc.blur(destination, destination, new Size(3, 3));
+			
+//			Imgproc.Sobel(destination, destination, -2, 0, 2);
+			
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image prewitt(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+		
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+
+            int kernelSize = 9;
+            Mat kernel = new Mat(kernelSize,kernelSize, CvType.CV_32F) {
+                {
+                    put(0,0,-1);
+                    put(0,1,0);
+                    put(0,2,1);
+
+                    put(1,0-1);
+                    put(1,1,0);
+                    put(1,2,1);
+
+                    put(2,0,-1);
+                    put(2,1,0);
+                    put(2,2,1);
+                }
+            };
+
+			
+			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
+			
+			Imgproc.filter2D(imageCv, destination, -1, kernel);
 			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
 			
 			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());

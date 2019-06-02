@@ -370,6 +370,41 @@ public class MainController {
 		updateResultImageView();
 	}
 	
+	@FXML
+	public void canny() {
+		resultImage = ImageProcessing.canny(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void laplace() {
+		resultImage = ImageProcessing.laplace(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void sobel() {
+		resultImage = ImageProcessing.sobel(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void prewitt() {
+		resultImage = ImageProcessing.prewitt(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void test() {
+		resultImage = ImageProcessing.test(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
 	private void updateResultImageView() {
 		resultImageView.setImage(resultImage);
 		resultImageView.setFitWidth(resultImage.getWidth());
