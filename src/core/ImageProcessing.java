@@ -3,6 +3,7 @@ package core;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.imageio.ImageIO;
@@ -44,13 +45,13 @@ public class ImageProcessing {
 					double average = calcAverage(originalColor.getRed(), red, originalColor.getGreen(), green, originalColor.getBlue(), blue);
 					Color newColor = new Color(average, average, average, originalColor.getOpacity());
 					
-					if (x1 > 0 && y1 > 0 && x2 > 0 && y2 > 0) {
-						if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+//					if (x1 > 0 && y1 > 0 && x2 > 0 && y2 > 0) {
+//						if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
 							pixelWriter.setColor(x, y, newColor);
-						} else {
-							pixelWriter.setColor(x, y, originalColor);							
-						}
-					}
+//						} else {
+//							pixelWriter.setColor(x, y, originalColor);							
+//						}
+//					}
 				}
 			}
 
@@ -817,7 +818,7 @@ public class ImageProcessing {
 			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
 			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
 			
-			int dilation_size = 20;
+			int dilation_size = 5;
 			
 			Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * dilation_size + 1, 2 * dilation_size + 1));
 			Imgproc.dilate(imageCv, destination, element1);
@@ -847,7 +848,7 @@ public class ImageProcessing {
 			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
 			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
 			
-			int erosonSize = 20;
+			int erosonSize = 10;
 			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * erosonSize + 1, 2 * erosonSize + 1));
 			
 			Imgproc.erode(imageCv, destination, element);
@@ -907,13 +908,32 @@ public class ImageProcessing {
 			}
 			
 			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
-			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
-			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY);
-			Imgproc.blur(destination, destination, new Size(3, 3));
+			Mat grayMat = new Mat(); // guardar resultado de preto e branco
+	        Mat sobel = new Mat(); // guardar resultado
+
+	        Mat grad_x = new Mat();
+	        Mat abs_grad_x = new Mat();
+
+	        Mat grad_y = new Mat();
+	        Mat abs_grad_y = new Mat();
+
+	        // converte para preto e branco
+	        Imgproc.cvtColor(imageCv, grayMat, Imgproc.COLOR_BGR2GRAY);
+
+	        // calcula gradiente na direção horizontal
+	        Imgproc.Sobel(grayMat, grad_x, CvType.CV_16S, 1, 0, 3, 1, 0);
+
+	        // calcula gradiente na direção vertical
+	        Imgproc.Sobel(grayMat, grad_y, CvType.CV_16S, 0, 1, 3, 1, 0);
+
+	        // calcula valores absolutos de gradiente nas duas direções
+	        Core.convertScaleAbs(grad_x, abs_grad_x);
+	        Core.convertScaleAbs(grad_y, abs_grad_y);
+
+	        // calculando o gradiente resultante
+	        Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 1, sobel);
 			
-			Imgproc.Sobel(destination, destination, -2, 0, 2);
-			
-			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", sobel);
 			
 			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
 		} catch (IOException e) {
@@ -935,25 +955,29 @@ public class ImageProcessing {
 				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
 			}
 			
-			Mat src = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
-			
-			// Declare the variables we are going to use
-	        Mat src_gray = new Mat(), dst = new Mat();
+			Mat src, src_gray = new Mat(), dst = new Mat();
 	        int kernel_size = 3;
 	        int scale = 1;
 	        int delta = 0;
 	        int ddepth = CvType.CV_16S;
-	        
+
+	        src = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png", Imgcodecs.IMREAD_COLOR); // Load an image
+
+	        // Redução de ruído
 	        // Reduce noise by blurring with a Gaussian filter ( kernel size = 3 )
 	        Imgproc.GaussianBlur( src, src, new Size(3, 3), 0, 0, Core.BORDER_DEFAULT );
-	        // Convert the image to grayscale
+
+	        // Converte para preto e branco
 	        Imgproc.cvtColor( src, src_gray, Imgproc.COLOR_RGB2GRAY );
+
+	        /// Aplica função de laplace
 	        Mat abs_dst = new Mat();
-	        Imgproc.Laplacian( src_gray, dst, ddepth, kernel_size, scale, delta, Core.BORDER_DEFAULT );
+	        Imgproc.Laplacian(src_gray, dst, ddepth, kernel_size, scale, delta, Core.BORDER_DEFAULT);
+
 	        // converting back to CV_8U
-	        Core.convertScaleAbs( dst, abs_dst );
+	        Core.convertScaleAbs(dst, abs_dst);
 			
-			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", dst);
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", abs_dst);
 			
 			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
 		} catch (IOException e) {
@@ -977,14 +1001,29 @@ public class ImageProcessing {
 			
 			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
 			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
-			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY); // grayscale
-			Imgproc.threshold(imageCv, destination, 0, 255, Imgproc.THRESH_OTSU); // threshold
+//			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY); // grayscale
+//			Imgproc.threshold(imageCv, destination, 110, 255, Imgproc.THRESH_BINARY); // threshold LINHA MAIS IMPORTANTE
+//			Imgproc.threshold(imageCv, destination, 110, 255, Imgproc.THRESH_BINARY); // threshold LINHA MAIS IMPORTANTE
+//			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2HSV); // hsv
+			imageCv.convertTo(destination, -1, 2.5, 40);
+			Mat m1 = new Mat();
+			Mat m2 = new Mat();
+			Mat m3 = new Mat();
+			ArrayList<Mat> mv = new ArrayList<Mat>();
+			
+//			Core.split(destination, mv);
+//			imageCv.convertTo(destination, 50, 400);
+//			Core.inRange(imageCv, new Scalar(0, 0, 0), new Scalar(40, 40, 40), destination);
+//			Core.bitwise_not(destination, destination);
+//			Imgproc.equalizeHist(destination, destination);
 			
 			
-//			Imgproc.blur(destination, destination, new Size(3, 3));
+//			Imgproc.medianBlur(destination, destination, 5);
+//			Imgproc.GaussianBlur(imageCv, destination, new Size(11, 11), 100); // IMPORTANTE
 			
 //			Imgproc.Sobel(destination, destination, -2, 0, 2);
 			
+//			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", mv.get(1));
 			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
 			
 			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
@@ -1007,7 +1046,11 @@ public class ImageProcessing {
 				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
 			}
 
+			Mat matImgDst = new Mat();
+            Mat matImgSrc = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+
             int kernelSize = 9;
+
             Mat kernel = new Mat(kernelSize,kernelSize, CvType.CV_32F) {
                 {
                     put(0,0,-1);
@@ -1024,12 +1067,8 @@ public class ImageProcessing {
                 }
             };
 
-			
-			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
-			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
-			
-			Imgproc.filter2D(imageCv, destination, -1, kernel);
-			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+            Imgproc.filter2D(matImgSrc, matImgDst, -1, kernel);
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", matImgDst);
 			
 			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
 		} catch (IOException e) {
