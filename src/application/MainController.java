@@ -7,6 +7,8 @@ import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 
+import org.opencv.imgcodecs.Imgcodecs;
+
 import core.ImageProcessing;
 import core.NeighborType;
 import javafx.embed.swing.SwingFXUtils;
@@ -213,7 +215,45 @@ public class MainController {
 		resultImage = ImageProcessing.add(image1, image2, sliderOpacityImage.getValue());
 		updateResultImageView();
 	}
+
+	@FXML
+	public void applyArticle() {
+		Image removeNoise = ImageProcessing.noise(originalImage, NeighborType.ALL_NEIGHBORS);
+		Image gaussianImage = ImageProcessing.gaussian(removeNoise, removeNoise, image2);
+		Image grayscaleImage = ImageProcessing.grayscaleCv(gaussianImage, gaussianImage, image2);
+		Image cannyImage = ImageProcessing.canny(grayscaleImage, grayscaleImage, image2);
+		Image dilatedImage = ImageProcessing.dilation(cannyImage, cannyImage, image2);
+		resultImage = ImageProcessing.findAndDrawContours(dilatedImage, dilatedImage, image2);
+		resultImage = ImageProcessing.findAndDrawContours(resultImage, resultImage, image2);
+
+		this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\1 - Original.png", originalImage);
+	    this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\2 - Ruído.png", removeNoise);
+	    this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\3 - Gaussiano.png", gaussianImage);
+	    this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\4 - Escala de Cinza.png", grayscaleImage);
+	    this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\5 - Canny.png", cannyImage);
+	    this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\6 - Dilatação.png", dilatedImage);
+	    this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\7 - Find And Draw Countours.png", resultImage);
+	    
+	    resultImage = ImageProcessing.add(originalImage, resultImage, 1);
+	    
+	    this.saveImage("C:\\Users\\Eric\\Pictures\\img\\src\\processo\\8 - Final.png", resultImage);
+
+//		resultImage = dilatedImage;
+//		resultImage = ImageProcessing.grayscaleCv(originalImage, image1, image2);
+		updateResultImageView();
+	}
 	
+	private void saveImage(String path, Image image) {
+		File outputFile = new File(path);
+	    BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+
+	    try {
+	      ImageIO.write(bImage, "png", outputFile);
+	    } catch (IOException e) {
+	      throw new RuntimeException(e);
+	    }
+	}
+
 	@FXML
 	public void openImageSelector1() {
 		file1 = selectImage();
@@ -401,6 +441,20 @@ public class MainController {
 	@FXML
 	public void test() {
 		resultImage = ImageProcessing.test(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void gaussian() {
+		resultImage = ImageProcessing.gaussian(originalImage, image1, image2);
+		
+		updateResultImageView();
+	}
+	
+	@FXML
+	public void findAndDrawContours() {
+		resultImage = ImageProcessing.findAndDrawContours(originalImage, image1, image2);
 		
 		updateResultImageView();
 	}

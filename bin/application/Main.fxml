@@ -396,6 +396,25 @@
                               </AnchorPane>
                            </content>
                         </TitledPane>
+                        <TitledPane animated="false" layoutX="10.0" layoutY="351.0" prefWidth="214.0" text="Article">
+                           <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox layoutX="36.0" layoutY="24.0" prefHeight="246.0" prefWidth="164.0" AnchorPane.bottomAnchor="-82.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="0.0">
+                                       <children>
+                                          <Button mnemonicParsing="false" onAction="#gaussian" text="Gaussian" />
+                                          <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#findAndDrawContours" text="Find/Draw color">
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </Button>
+                                          <Button layoutX="10.0" layoutY="51.0" mnemonicParsing="false" onAction="#applyArticle" text="Apply" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </TitledPane>
                     </panes>
                   </Accordion>
                </children>

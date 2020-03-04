@@ -4,13 +4,17 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -45,6 +49,16 @@ public class ImageProcessing {
 					double average = calcAverage(originalColor.getRed(), red, originalColor.getGreen(), green, originalColor.getBlue(), blue);
 					Color newColor = new Color(average, average, average, originalColor.getOpacity());
 					
+					if ((originalColor.getRed() > originalColor.getBlue() && originalColor.getRed() > originalColor.getGreen()) && average < 0.35) {
+						double newAverage = calcAverage(originalColor.getRed() * 0.5, 1, originalColor.getGreen(), 1, originalColor.getBlue(), 1);
+						newColor = new Color(newAverage, newAverage, newAverage, originalColor.getOpacity());
+					}
+					
+//					if ((originalColor.getGreen() > originalColor.getBlue() && originalColor.getGreen() > originalColor.getRed()) && average < 0.70) {
+//						double newAverage = calcAverage(originalColor.getRed(), 1, originalColor.getGreen() * 1.5, 1, originalColor.getBlue(), 1);
+//						newColor = new Color(newAverage, newAverage, newAverage, originalColor.getOpacity());
+//					}
+					
 //					if (x1 > 0 && y1 > 0 && x2 > 0 && y2 > 0) {
 //						if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
 							pixelWriter.setColor(x, y, newColor);
@@ -63,6 +77,7 @@ public class ImageProcessing {
 	}
 	
 	public static Image limiarizacao(Image imagem, int red, int green, int blue, double limiar) {
+		System.out.println(limiar);
 		try {
 			int imageWidth = (int)imagem.getWidth();
 			int imageHeight = (int)imagem.getHeight();
@@ -246,9 +261,21 @@ public class ImageProcessing {
 					Color originalColor1 = pixelReader1.getColor(i, j);
 					Color originalColor2 = pixelReader2.getColor(i, j);
 					
-					double rColor = originalColor1.getRed() * opacity + originalColor2.getRed() * (1 - opacity);
-					double gColor = originalColor1.getGreen() * opacity + originalColor2.getGreen() * (1 - opacity);
-					double bColor = originalColor1.getBlue() * opacity + originalColor2.getBlue() * (1 - opacity);
+					if (originalColor1.getRed() == 0 && originalColor1.getGreen() == 0 && originalColor1.getBlue() == 0) {
+						
+					}
+					
+					double rColor = originalColor1.getRed();
+					double gColor = originalColor1.getGreen();
+					double bColor = originalColor1.getBlue();
+//					
+//					System.out.println(originalColor2.getRed());
+					
+					if (originalColor2.getRed() < 0.94 && originalColor2.getGreen() < 0.94 && originalColor2.getBlue() < 0.94) {
+						rColor = 0;
+						gColor = 0;
+						bColor = 0;
+					}
 					
 					Color newColor = new Color(rColor, gColor, bColor, 1);
 					pixelWriter.setColor(i, j, newColor);
@@ -818,7 +845,7 @@ public class ImageProcessing {
 			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
 			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
 			
-			int dilation_size = 5;
+			int dilation_size = 1;
 			
 			Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * dilation_size + 1, 2 * dilation_size + 1));
 			Imgproc.dilate(imageCv, destination, element1);
@@ -848,7 +875,7 @@ public class ImageProcessing {
 			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
 			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
 			
-			int erosonSize = 10;
+			int erosonSize = 3;
 			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * erosonSize + 1, 2 * erosonSize + 1));
 			
 			Imgproc.erode(imageCv, destination, element);
@@ -882,8 +909,8 @@ public class ImageProcessing {
 			int threshold = 3;
 			int ratio = 50;
 			int kernelSize = 3;
-			Imgproc.Canny(destination, destination, 10, 100);
-//			Imgproc.Canny(destination, destination, threshold, threshold * ratio, kernelSize, false);
+			Imgproc.Canny(destination, destination, 10, 300);
+//			Imgproc.Canny(destifnation, destination, threshold, threshold * ratio, kernelSize, false);
 			
 			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
 			
@@ -1001,29 +1028,12 @@ public class ImageProcessing {
 			
 			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
 			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
-//			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY); // grayscale
-//			Imgproc.threshold(imageCv, destination, 110, 255, Imgproc.THRESH_BINARY); // threshold LINHA MAIS IMPORTANTE
-//			Imgproc.threshold(imageCv, destination, 110, 255, Imgproc.THRESH_BINARY); // threshold LINHA MAIS IMPORTANTE
-//			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2HSV); // hsv
-			imageCv.convertTo(destination, -1, 2.5, 40);
+			Imgproc.cvtColor(imageCv, destination, Imgproc.COLOR_BGR2GRAY);
 			Mat m1 = new Mat();
 			Mat m2 = new Mat();
 			Mat m3 = new Mat();
 			ArrayList<Mat> mv = new ArrayList<Mat>();
 			
-//			Core.split(destination, mv);
-//			imageCv.convertTo(destination, 50, 400);
-//			Core.inRange(imageCv, new Scalar(0, 0, 0), new Scalar(40, 40, 40), destination);
-//			Core.bitwise_not(destination, destination);
-//			Imgproc.equalizeHist(destination, destination);
-			
-			
-//			Imgproc.medianBlur(destination, destination, 5);
-//			Imgproc.GaussianBlur(imageCv, destination, new Size(11, 11), 100); // IMPORTANTE
-			
-//			Imgproc.Sobel(destination, destination, -2, 0, 2);
-			
-//			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", mv.get(1));
 			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
 			
 			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
@@ -1116,6 +1126,103 @@ public class ImageProcessing {
 
 			return writableImage;
 		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image gaussian(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+		
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+			
+			Mat imageCv = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+			Mat destination = new Mat(imageCv.rows(), imageCv.cols(), imageCv.type());
+			Imgproc.GaussianBlur(imageCv, destination, new Size(9, 9), 100);
+		
+			Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image findAndDrawContours(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+	
+		Mat image = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		Mat destination = new Mat(image.rows(), image.cols(), image.type());
+		Imgproc.cvtColor(image, destination, Imgproc.COLOR_BGR2GRAY); // grayscale
+
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+		
+		Mat cannyOutput = new Mat();
+
+		Imgproc.cvtColor(image, destination, Imgproc.COLOR_BGR2GRAY); // grayscale
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+		
+			List<MatOfPoint> contours = new ArrayList<>();
+			Mat dest = Mat.zeros(image.size(), CvType.CV_8UC3);
+			Scalar white = new Scalar(255, 255, 255);
+
+			// Find contours
+			Imgproc.findContours(destination, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+			// Draw contours in dest Mat
+			Imgproc.drawContours(dest, contours, -1, white);
+			
+			for (MatOfPoint contour: contours) 
+			    Imgproc.fillPoly(dest, Arrays.asList(contour), white);
+			
+	        Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", dest);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image grayscaleCv(Image originalImage, Image image1, Image image2) {
+		File fileOriginalImage = new File("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		BufferedImage bufferedOriginalImg = null;
+	
+		Mat image = Imgcodecs.imread("C:\\Users\\Eric\\Pictures\\img\\src\\originalImage.png");
+		Mat destination = new Mat(image.rows(), image.cols(), image.type());
+		Imgproc.cvtColor(image, destination, Imgproc.COLOR_BGR2GRAY); // grayscale
+
+		if (originalImage != null) {
+			bufferedOriginalImg = SwingFXUtils.fromFXImage(originalImage, null);			
+		}
+
+		Imgproc.cvtColor(image, destination, Imgproc.COLOR_BGR2GRAY);
+		
+		try {
+			if (bufferedOriginalImg != null) {
+				ImageIO.write(bufferedOriginalImg, "PNG", fileOriginalImage);				
+			}
+			
+	        Imgcodecs.imwrite("C:\\Users\\Eric\\Pictures\\img\\src\\result.png", destination);
+			
+			return new Image(new File("C:\\Users\\Eric\\Pictures\\img\\src\\result.png").toURI().toString());
+		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
